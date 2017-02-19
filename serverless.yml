@@ -1,16 +1,37 @@
 #service: aws-nodejs # NOTE: update this with your service name
-service: bronco-express
+#service: bronco-express
+service: aws-nodejs # NOTE: update this with your service name
 
 provider:
   name: aws
   runtime: nodejs4.3
-  stage: dev
-  profile: serverless
+#  stage: dev
+#  profile: serverless
   region: us-west-1
+
+
+iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - "s3:ListBucket"
+    Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+  - Effect: "Allow"
+    Action:
+      - "dynamodb:*"
+    Resource: "*"
+  - Effect: "Allow"
+    Action:
+      - "s3:PutObject"
+    Resource:
+      Fn::Join:
+        - ""
+        - - "arn:aws:s3:::"
+          - "Ref" : "ServerlessDeploymentBucket"
+
 
 functions:
   # this is what the function in lamda is called
-  express-update:
+  update:
     # what actually gets called {handler} is the js file that has the methods
     # and .{updateInfo} is the method in that is in that handler js file
     handler: handler.updateInfo

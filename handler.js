@@ -7,8 +7,8 @@ AWS.config.update({
     region: "us-west-1"
 });
 
-let db = new AWS.DynamoDB.DocumentClient();
-let table = "BroncoExpress";
+// let db = new AWS.DynamoDB.DocumentClient();
+// let table = "BroncoExpress";
 
 module.exports.updateInfo = (event, context, callback) =>
 {
@@ -20,7 +20,12 @@ module.exports.updateInfo = (event, context, callback) =>
         body: JSON.stringify({
             message: 'Shuttle data updated!'
         }),
+        headers: {
+            "Access-Control-Allow-Origin": "*"
+        },
     };
+
+
 
     // send back to page
     callback(null, response);
