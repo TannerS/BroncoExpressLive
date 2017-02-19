@@ -40,6 +40,13 @@ functions:
       # specify this is a http call
       - http:
         # this is what goes into path e.g. /express-update
-         path: bexpress/update
+         path: update
+         method: get
+         cors: true
+  recent:
+    handler: handler.getRecent
+    events:
+      - http:
+         path: recent
          method: get
          cors: true

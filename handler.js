@@ -9,16 +9,11 @@ AWS.config.update({
 
 let db = new AWS.DynamoDB.DocumentClient();
 let data_table = "BroncoExpress";
+let recent_table = "BroncoExpressRecent";
 let api = "https://rqato4w151.execute-api.us-west-1.amazonaws.com/dev/info";
-
-
 
 module.exports.updateInfo = (event, context, callback) =>
 {
-    // Contains incoming request data (e.g., query params, headers and more)
-    // console.log("EVENT: " + event);
-
-    // load this url
     request(api, function (error, response, body) {
         if (!error && response.statusCode == 200)
         {
@@ -27,6 +22,7 @@ module.exports.updateInfo = (event, context, callback) =>
             for (let i = 0; i < data.length; i++)
             {
                 insertDataIntoDb(data_table, data[i]);
+                insertDataIntoDbRecent(recent_table, data[i]);
             }
 
             // send back to page
@@ -46,7 +42,39 @@ module.exports.updateInfo = (event, context, callback) =>
 
         }
     });
+};
 
+module.exports.getRecent = (event, context, callback) =>
+{
+    console.log("Getting recent data");
+
+    let params = {
+        TableName: recent_table,
+    };
+
+    db.scan(params, function(err, data) {
+        if (err) {
+            console.log("Error getting recent data");
+
+            callback(null, {
+                statusCode: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                body: "Error getting shuttle data"
+            });
+        }
+        else {
+            console.log("Data gathered");
+            callback(null, {
+                statusCode: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*"
+                },
+                body: JSON.stringify(data.Items)
+            });
+        }
+    });
 
 };
 
@@ -65,8 +93,6 @@ function insertDataIntoDb(table, data)
         }
     };
 
-    // console.log("PARAMS: " + params);
-
     db.put(params, function(err, data) {
         if (err)
         {
@@ -79,4 +105,28 @@ function insertDataIntoDb(table, data)
     });
 }
 
+function insertDataIntoDbRecent(table, data)
+{
+    let params = {
+        TableName: table,
+        Item: {
+            "id": data.id,
+            "logo": data.logo,
+            "lat": data.lat,
+            "lng": data.lng,
+            "route": data.route
+        }
+    };
+
+    db.put(params, function(err, data) {
+        if (err)
+        {
+            console.error("Problem adding data: ", JSON.stringify(err));
+        }
+        else
+        {
+            console.log("Added item: ", JSON.stringify(data));
+        }
+    });
+}
 
