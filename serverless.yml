@@ -1,0 +1,24 @@
+#service: aws-nodejs # NOTE: update this with your service name
+service: bronco-express
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+  stage: dev
+  profile: serverless
+  region: us-west-1
+
+functions:
+  # this is what the function in lamda is called
+  express-update:
+    # what actually gets called {handler} is the js file that has the methods
+    # and .{updateInfo} is the method in that is in that handler js file
+    handler: handler.updateInfo
+    # define
+    events:
+      # specify this is a http call
+      - http:
+        # this is what goes into path e.g. /express-update
+         path: bexpress/update
+         method: get
+         cors: true
